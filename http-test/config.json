@@ -1,0 +1,53 @@
+{
+   "host" : "http://127.0.0.1:8000/users",
+   "requests" : [
+      {
+         "contentType" : "application/json",
+         "desc" : "",
+         "headers" : [
+            
+         ],
+         "method" : "POST",
+         "params" : [
+            {
+               "desc" : "",
+               "enable" : true,
+               "key" : "id",
+               "type" : "int",
+               "value" : "4"
+            },
+            {
+               "desc" : "",
+               "enable" : true,
+               "key" : "username",
+               "type" : "string",
+               "value" : "edgardo"
+            },
+            {
+               "desc" : "",
+               "enable" : true,
+               "key" : "email",
+               "type" : "string",
+               "value" : "edgardo@email.com"
+            },
+            {
+               "desc" : "",
+               "enable" : true,
+               "key" : "age",
+               "type" : "int",
+               "value" : "30"
+            },
+            {
+               "desc" : "",
+               "enable" : true,
+               "key" : "url",
+               "type" : "string",
+               "value" : "https://www.github.com/edgardo"
+            }
+         ],
+         "path" : "",
+         "result" : "{\"detail\":[{\"type\":\"model_attributes_type\",\"loc\":[\"body\"],\"msg\":\"Input should be a valid dictionary or object to extract fields from\",\"input\":\"--2c488aa7-dfb5-4565-a768-7bd6ab386649\\r\\nContent-Disposition: form-data; name=\\\"id\\\"\\r\\nContent-Length: 1\\r\\n\\r\\n4\\r\\n--2c488aa7-dfb5-4565-a768-7bd6ab386649\\r\\nContent-Disposition: form-data; name=\\\"username\\\"\\r\\nContent-Length: 7\\r\\n\\r\\nedgardo\\r\\n--2c488aa7-dfb5-4565-a768-7bd6ab386649\\r\\nContent-Disposition: form-data; name=\\\"email\\\"\\r\\nContent-Length: 17\\r\\n\\r\\nedgardo@email.com\\r\\n--2c488aa7-dfb5-4565-a768-7bd6ab386649\\r\\nContent-Disposition: form-data; name=\\\"age\\\"\\r\\nContent-Length: 2\\r\\n\\r\\n30\\r\\n--2c488aa7-dfb5-4565-a768-7bd6ab386649\\r\\nContent-Disposition: form-data; name=\\\"url\\\"\\r\\nContent-Length: 30\\r\\n\\r\\nhttps://www.github.com/edgardo\\r\\n--2c488aa7-dfb5-4565-a768-7bd6ab386649--\\r\\n\",\"url\":\"https://errors.pydantic.dev/2.3/v/model_attributes_type\"}]}",
+         "time" : 5
+      }
+   ]
+}

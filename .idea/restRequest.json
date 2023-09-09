@@ -1,0 +1,10 @@
+{
+  "uri": "http://127.0.0.1/users",
+  "method": "POST",
+  "body": "{\n     id: 4,\n     username: \"edgardo\",\n     email: \"edgardo@email.com\",\n     age: 30,\n     url: \"https://www.github.com/edgardo\"\n}",
+  "headers": {
+    "Accept": "application/json",
+    "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; SGP512 Build/23.4.A.0.546) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.133 Safari/537.36",
+    "Content-Type": "application/json"
+  }
+}
