@@ -4,7 +4,10 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
+# To use fast Api: pip install fastapi
+# To use server: pip install "uvicorn[standard]"
 # To start the server: uvicorn main:app --reload
+# To use mongodb: pip install pymongo
 
 #  Routers
 app.include_router(products.router)
@@ -16,6 +19,7 @@ app.include_router(users.router)
 # name is the name of the route
 app.mount("/static", StaticFiles(directory="static"), name="static")  # http://localhost:8000/static/images/flname
 
+
 @app.get("/")
 async def root():
     return {"message": "This is an api made with python and fastapi."}
@@ -24,6 +28,3 @@ async def root():
 @app.get("/aboutMe")
 async def about_me():
     return {"github": "https://www.github.com/thegera4"}
-
-
-

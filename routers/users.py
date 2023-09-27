@@ -1,82 +1,63 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, status
+from db.models.user import User
+from db.client import db_client
+from db.schemas.user import user_schema, users_schema
+from db.utils.aux_defs import search_user  # , is_same_information
+from bson import ObjectId  # to convert the id from mongo to a string
 
 # prefix is used to add a prefix to all the paths in the router
 # tags is used to add separate "titles" to the documentation and to group the paths in the router
 # responses is used to add default responses to all the paths in the router
-router = APIRouter(prefix="/users", tags=["users"], responses={404: {"description": "User(s) not found"}})
+router = APIRouter(
+    prefix="/users", tags=["users"], responses={status.HTTP_404_NOT_FOUND: {"description": "User(s) not found"}}
+)
 
 
-class User(BaseModel):
-    id: int
-    username: str
-    email: str
-    age: int
-    url: str
-
-
-users_list = [User(id=1, username="thegera4", email="same@email.com", age=36, url="https://www.github.com/thegera4"),
-              User(id=2, username="sarina_next", email="sarina@email.com", age=36, url="https://www.github.com/sarina"),
-              User(id=3, username="asdfg", email="asdfg@email.com", age=36, url="https://www.github.com/asdfg")]
-
-
-@router.get("/")
+@router.get("/", response_model=list[User])  # response_model is for the documentation
 async def users():
-    return users_list
-
-
-# Helper function to search a user by id => returns the user
-def search_user(user_id: int):
-    selected_user = filter(lambda u: u.id == user_id, users_list)
-    try:
-        return list(selected_user)[0]
-    except IndexError:
-        return {"message": "User not found."}
-
-
-# Helper function to compare if the information is the same => raises an exception if true
-def is_same_information(user1: User, user2: User):
-    if (user1.username == user2.username and user1.email == user2.email and
-            user1.age == user2.age and user1.url == user2.url):
-        raise HTTPException(status_code=202, detail="User not modified: the received information is the same.")
+    return users_schema(db_client.local.users.find())
 
 
 # GET with Path
 @router.get("/{user_id}")
-async def user(user_id: int):
-    return search_user(user_id)
+async def user(user_id: str):
+    return search_user("_id", ObjectId(user_id))
 
 
 # GET with Query
 @router.get("/")
-async def user(user_id: int):
-    return search_user(user_id)
+async def user(user_id: str):
+    return search_user("_id", ObjectId(user_id))
 
 
-@router.post("/", response_model=User, status_code=201)  # response_model is for the documentation
+@router.post("/", response_model=User, status_code=status.HTTP_201_CREATED)  # status_code = default code if OK
 async def create_user(new_user: User):
-    if type(search_user(new_user.id)) == User:
-        raise HTTPException(status_code=409, detail="User already exists.")  # raise an exception / do not return
-    else:
-        users_list.append(new_user)
-        return new_user
+    # if user is found in the database, raise an exception
+    if type(search_user("email", new_user.email)) == User:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists.")
+    # else, create the user
+    new_user_dict = dict(new_user)  # convert the model to a dict
+    del new_user_dict["id"]  # delete the id from the dict to insert into mongo
+    user_id = db_client.local.users.insert_one(new_user_dict).inserted_id  # insert the user into mongo and take the id
+    transformed_user = user_schema(db_client.local.users.find_one({"_id": user_id}))  # transform the user to a model
+    return User(**transformed_user)  # ** to unpack the dict
 
 
-@router.put("/", response_model=User, status_code=200)  # status_code is the default status code sent if OK
+@router.put("/", response_model=User, status_code=status.HTTP_200_OK)
 async def update_user(modified_user: User):
-    found_user = search_user(modified_user.id)
-    is_same_information(found_user, modified_user)
-    for index, saved_user in enumerate(users_list):
-        if saved_user.id == modified_user.id:
-            users_list[index] = modified_user
-            return modified_user
-    raise HTTPException(status_code=404, detail="User not found.")
+    # found_user = search_user(modified_user.id)
+    # is_same_information(found_user, modified_user)
+    modified_user_dict = dict(modified_user)
+    del modified_user_dict["id"]
+    try:
+        db_client.local.users.find_one_and_replace({"_id": ObjectId(modified_user.id)}, modified_user_dict)
+    except IndexError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    return search_user("_id", ObjectId(modified_user.id))
 
 
-@router.delete("/{user_id}", status_code=200)
-async def delete_user(user_id: int):
-    for index, saved_user in enumerate(users_list):
-        if saved_user.id == user_id:
-            users_list.pop(index)
-            return {"message": "User deleted successfully."}
-    raise HTTPException(status_code=404, detail="User not found.")
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(user_id: str):
+    found_user = db_client.local.users.find_one_and_delete({"_id": ObjectId(user_id)})
+    if not found_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
