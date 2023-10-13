@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 python-jose
+pydantic
 pydantic_settings
 passlib
 pymongo
