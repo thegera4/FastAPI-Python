@@ -25,3 +25,5 @@ class Settings(BaseSettings):
 
 # Create an instance of the settings class
 settings = Settings()
+
+# you have to create a __init__.py file in the folder where you have the config.py file
