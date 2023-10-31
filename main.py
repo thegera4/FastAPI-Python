@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routers import products, users
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import RedirectResponse
 
 
 # Create an instance of fastapi
@@ -24,9 +25,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")  # http://l
 
 @app.get("/")
 async def root():
-    return {"message": "This is an api made with python and fastapi."}
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/aboutMe")
 async def about_me():
-    return {"github": "https://www.github.com/thegera4"}
+    return {
+        "message": "This is an api made with python and fastapi.",
+        "github": "https://www.github.com/thegera4"
+    }
