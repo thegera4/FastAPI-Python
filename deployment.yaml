@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kub-example-fastapi
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+        app: kub-example-fastapi
+        tier: backend
+      #matchExpressions:
+        #- {key: app, operator: In, values: [kub-example-fastapi, backend]}
+  template:
+    metadata:
+      labels:
+        app: kub-example-fastapi
+        tier: backend
+    spec:
+      containers:
+      - name: example-fastapi
+        image: thegera4/fastapi-example:latest
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
